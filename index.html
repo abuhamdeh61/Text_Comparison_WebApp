@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Comparison</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+</head>
+
+<body>
+
+    <div class="container mt-5">
+        <h1 class="mb-4">Text Comparison</h1>
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Text 1</h3>
+                <textarea id="text1" class="form-control" rows="20"></textarea>
+            </div>
+            <div class="col-md-6">
+                <h3>Text 2</h3>
+                <textarea id="text2" class="form-control" rows="20"></textarea>
+            </div>
+        </div>
+        <div class="mt-4">
+            <button id="compareBtn" class="btn btn-primary">Compare</button>
+        </div>
+
+        <div class="row mt-4" id="answers" style="display: none;">
+            <div class="col-md-6">
+                <h3>Text 1</h3>
+                <div id="ans1"></div>
+            </div>
+            <div class="col-md-6">
+                <h3>Text 2</h3>
+                <div id="ans2"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById("compareBtn").addEventListener("click", function () {
+            const text1 = document.getElementById("text1").value;
+            const text2 = document.getElementById("text2").value;
+            const resultContainer = document.getElementById("answers");
+            const ans1Container = document.getElementById("ans1");
+            const ans2Container = document.getElementById("ans2");
+
+            // Split the text1 and text2 by lines
+            const text1Lines = text1.split("\n");
+            const text2Lines = text2.split("\n");
+            const x = Array(text1Lines.length).fill(0);
+            const y = Array(text2Lines.length).fill(0);
+
+            // Function to calculate the Longest Common Subsequence (LCS)
+            function longestCommonSubsequence(text1, text2) {
+                console.log(text1);
+                console.log(text2);
+                const m = text1.length;
+                const n = text2.length;
+                const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+
+                for (let i = 1; i <= m; i++) {
+                    for (let j = 1; j <= n; j++) {
+                        if (text1[i - 1] === text2[j - 1]) {
+                            dp[i][j] = dp[i - 1][j - 1] + 1;
+                        } else {
+                            dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                        }
+                    }
+                }
+
+                let i = m, j = n;
+                let lcs = "";
+                while (i > 0 && j > 0) {
+
+                    if (text1[i - 1] === text2[j - 1]) {
+                        lcs = text1[i - 1] + "\n" + lcs;
+                        x[i - 1] = 1;
+                        y[j - 1] = 1;
+                        i--;
+                        j--;
+                    } else if (dp[i - 1][j] > dp[i][j - 1]) {
+                        i--;
+                    } else {
+                        j--;
+                    }
+                }
+
+                console.log(lcs);
+            }
+
+            longestCommonSubsequence(text1Lines, text2Lines);
+            console.log(x);
+            console.log(y);
+            // Make the lines in the text1Lines where x[i]=0 red and where y[j]=0 green
+            let i = 0, j = 0;
+            if (ans1Container.textContent !== "") {
+                ans1Container.textContent = "";
+            }
+            if (ans2Container.textContent !== "") {
+                ans2Container.textContent = "";
+            }
+            while (i < text1Lines.length) {
+                if (x[i] === 0) {
+                    const redSpan = document.createElement("span");
+                    //redSpan.style.color = "red";
+                    redSpan.style.backgroundColor = "red";
+                    redSpan.textContent = text1Lines[i];
+                    ans1Container.appendChild(redSpan);
+                } else {
+                    const blackSpan = document.createElement("span");
+                    blackSpan.style.color = "black";
+                    blackSpan.textContent = text1Lines[i];
+                    ans1Container.appendChild(blackSpan);
+                }
+                i++;
+                ans1Container.appendChild(document.createElement("br"));
+            }
+            while (j < text2Lines.length) {
+                if (y[j] === 0) {
+                    const greenSpan = document.createElement("span");
+                    //greenSpan.style.color = "green";
+                    greenSpan.style.backgroundColor = "green";
+                    greenSpan.textContent = text2Lines[j];
+                    ans2Container.appendChild(greenSpan);
+                } else {
+                    const blackSpan = document.createElement("span");
+                    blackSpan.style.color = "black";
+                    blackSpan.textContent = text2Lines[j];
+                    ans2Container.appendChild(blackSpan);
+                }
+                ans2Container.appendChild(document.createElement("br"));
+                j++;
+            }
+
+            // Display the answer containers next each other
+            resultContainer.style.display = "flex";
+
+        });
+    </script>
+</body>
+
+</html>
